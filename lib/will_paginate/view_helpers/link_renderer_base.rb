@@ -48,6 +48,8 @@ module WillPaginate
         if outer_window + 3 < middle.first # there's a gap
           left = (1..(outer_window + 1)).to_a
           left << :gap
+          left << ((outer_window + 1 + middle.first)/2).floor
+          left << :gap
         else # runs into visible pages
           left = 1...middle.first
         end
@@ -55,6 +57,8 @@ module WillPaginate
         # right window
         if total_pages - outer_window - 2 > middle.last # again, gap
           right = ((total_pages - outer_window)..total_pages).to_a
+          right.unshift :gap
+          right.unshift ((total_pages - outer_window + middle.last)/2).floor
           right.unshift :gap
         else # runs into visible pages
           right = (middle.last + 1)..total_pages
