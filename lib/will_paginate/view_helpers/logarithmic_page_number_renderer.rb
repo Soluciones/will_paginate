@@ -36,7 +36,7 @@ module WillPaginate
           page_array = (left.unshift(1) + [@current_page.to_i] + right.push(@total_pages)).uniq()
           page_array.each_with_index do |p, idx|
             result << p 
-            result << :gap if idx < page_array.length - 1
+            result << :gap if idx < page_array.length - 1 && p.to_i != page_array[idx + 1].to_i - 1
           end
           result
         end
