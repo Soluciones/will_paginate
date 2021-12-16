@@ -16,7 +16,7 @@ module WillPaginate
       end
       
       def pagination
-        items = @options[:page_links] ? windowed_page_numbers : []
+        items = @options[:page_links] ? windowed_logarithmic_page_numbers : []
         items.unshift :previous_page
         items.push :next_page
       end
@@ -61,10 +61,51 @@ module WillPaginate
           right.unshift ((total_pages - outer_window + middle.last)/2).floor
           right.unshift :gap
         else # runs into visible pages
-          right = (middle.last + 1)..total_pages
+          right = (middle.last + 1)..total_pages  
         end
         
         left.to_a + middle.to_a + right.to_a
+      end
+
+      def windowed_logarithmic_page_numbers
+
+        current_page = 25
+        total_pages = 100
+
+        result = []
+        page_array = logarithmic(current_page, total_pages)
+        page_array.each do |p|
+          result << p
+          result << :gap
+        end
+        result
+      end
+
+      def logarithmic(cp, tp)
+        left = cp > 2 ? [cp-1] : []
+        right = cp < tp-2 ? [cp+1] : []
+               
+        l_step = 10 * cp / tp > 0 ? 10 * cp / tp : 1
+        r_step = 10 - l_step
+         
+        l_seed = l_step == 1 ? cp/2 : Math.log(cp-1, l_step)
+        r_seed = r_step == 1 ? (tp-cp)/2 : Math.log(tp-cp-1, r_step)
+
+        #  left array
+        a = b = 1
+        while cp-1-l_seed ** a > 1
+          left.unshift((cp-1-l_seed ** a).floor())
+          a = a + 1
+        end
+
+        #  right array
+        while cp+1+r_seed ** b < tp
+          right.push((cp+1+r_seed ** b).floor())
+          b = b + 1
+        end
+        result = left.unshift(1) + [cp] + right.push(tp)
+        result = result.uniq()
+        
       end
 
     private
@@ -76,6 +117,7 @@ module WillPaginate
       def total_pages
         @total_pages ||= @collection.total_pages
       end
+
     end
   end
 end
