@@ -37,6 +37,13 @@ end
 WillPaginate.per_page = 10
 ```
 
+You can customize the page number algorithm using "algorithm" option (eg. logarithmic):
+
+``` ruby
+## render page links in the view:
+<%= will_paginate @posts, algorithm: 'logarithmic' %>
+```
+
 New in Active Record 3:
 
 ``` ruby
